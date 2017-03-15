@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{B2B865BA-D837-4009-988D-58B00290A12B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nerven.Self", "source\Nerven.Self\Nerven.Self.csproj", "{5D0C583E-3256-4731-B30B-F2F60AA7A3AB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "external", "external", "{61A9880D-4AE2-4F73-806B-BC72C84A562F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nerven.Htmler", "..\Nerven.Htmler\source\Nerven.Htmler\Nerven.Htmler.csproj", "{BB4A6ACE-FB28-49E3-A947-96FD9AD58C73}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5D0C583E-3256-4731-B30B-F2F60AA7A3AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D0C583E-3256-4731-B30B-F2F60AA7A3AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D0C583E-3256-4731-B30B-F2F60AA7A3AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D0C583E-3256-4731-B30B-F2F60AA7A3AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB4A6ACE-FB28-49E3-A947-96FD9AD58C73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB4A6ACE-FB28-49E3-A947-96FD9AD58C73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB4A6ACE-FB28-49E3-A947-96FD9AD58C73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB4A6ACE-FB28-49E3-A947-96FD9AD58C73}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5D0C583E-3256-4731-B30B-F2F60AA7A3AB} = {B2B865BA-D837-4009-988D-58B00290A12B}
+		{BB4A6ACE-FB28-49E3-A947-96FD9AD58C73} = {61A9880D-4AE2-4F73-806B-BC72C84A562F}
+	EndGlobalSection
+EndGlobal

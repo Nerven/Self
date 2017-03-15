@@ -1,0 +1,41 @@
+{
+    "Projects": [
+        {
+            "Name": "Assertion",
+            "DotNetPlatforms": [
+                ".NET Standard 1.1"
+            ],
+            "NugetPackages": [
+                "Nerven.Assertion"
+            ]
+        },
+        {
+            "Name": "Bygge",
+            "NugetPackages": [
+                "Nerven.Bygge"
+            ]
+        },
+        {
+            "Name": "CommandLineParser",
+            "NugetPackages": [
+                "Nerven.CommandLineParser.Core"
+            ]
+        },
+        {
+            "Name": "Htmler",
+            "LogoText": "Htm."
+        },
+        {
+            "Name": "StringParser",
+            "NugetPackages": [
+                "Nerven.StringParser.Core"
+            ]
+        },
+        {
+            "Name": "Taskuler",
+            "NugetPackages": [
+                "Nerven.Taskuler.Core"
+            ]
+        }
+    ]
+}

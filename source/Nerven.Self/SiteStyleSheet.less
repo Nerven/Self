@@ -1,0 +1,426 @@
+﻿@nerven-uri-base: '__BASE_URI';
+
+@font-face {
+    font-family: 'Asap';
+    src: url('@{nerven-uri-base}/font-asap/Asap-Regular-webfont.eot');
+    src: url('@{nerven-uri-base}/font-asap/Asap-Regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('@{nerven-uri-base}/font-asap/Asap-Regular-webfont.woff') format('woff'),
+         url('@{nerven-uri-base}/font-asap/Asap-Regular-webfont.ttf') format('truetype'),
+         url('@{nerven-uri-base}/font-asap/Asap-Regular-webfont.svg#AsapRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Asap';
+    src: url('@{nerven-uri-base}/font-asap/Asap-Italic-webfont.eot');
+    src: url('@{nerven-uri-base}/font-asap/Asap-Italic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('@{nerven-uri-base}/font-asap/Asap-Italic-webfont.woff') format('woff'),
+         url('@{nerven-uri-base}/font-asap/Asap-Italic-webfont.ttf') format('truetype'),
+         url('@{nerven-uri-base}/font-asap/Asap-Italic-webfont.svg#AsapItalic') format('svg');
+    font-weight: normal;
+    font-style: italic;
+
+}
+
+@font-face {
+    font-family: 'Asap';
+    src: url('@{nerven-uri-base}/font-asap/Asap-Bold-webfont.eot');
+    src: url('@{nerven-uri-base}/font-asap/Asap-Bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('@{nerven-uri-base}/font-asap/Asap-Bold-webfont.woff') format('woff'),
+         url('@{nerven-uri-base}/font-asap/Asap-Bold-webfont.ttf') format('truetype'),
+         url('@{nerven-uri-base}/font-asap/Asap-Bold-webfont.svg#AsapBold') format('svg');
+    font-weight: bold;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Asap';
+    src: url('@{nerven-uri-base}/font-asap/Asap-BoldItalic-webfont.eot');
+    src: url('@{nerven-uri-base}/font-asap/Asap-BoldItalic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('@{nerven-uri-base}/font-asap/Asap-BoldItalic-webfont.woff') format('woff'),
+         url('@{nerven-uri-base}/font-asap/Asap-BoldItalic-webfont.ttf') format('truetype'),
+         url('@{nerven-uri-base}/font-asap/Asap-BoldItalic-webfont.svg#AsapBoldItalic') format('svg');
+    font-weight: bold;
+    font-style: italic;
+
+}
+
+@nerven-color-white: #fff;
+@nerven-color-black: #222;
+@nerven-color-gray: #555;
+@nerven-color-gray-light: #777;
+@nerven-color-gray-dark: #444;
+@nerven-color-accent-first: #248400;
+@nerven-color-accent-second: @nerven-color-gray;
+
+@nerven-color-body-background: @nerven-color-white;
+@nerven-color-body-text: @nerven-color-black;
+@nerven-color-body-link-text: @nerven-color-accent-second;
+@nerven-color-body-link-text-alternate: @nerven-color-gray-dark;
+
+@nerven-color-header-background: transparent;
+@nerven-color-header-text: @nerven-color-accent-second;
+@nerven-color-header-link-text: @nerven-color-accent-second;
+@nerven-color-header-link-text-alternate: darken(@nerven-color-header-link-text, 15%);
+
+@nerven-font-asap: 'Asap';
+
+@nerven-length-unit: 12px;
+@nerven-length-unit-detail: (.5 * @nerven-length-unit);
+@nerven-length-unit-min: 1px;
+
+@nerven-length-body-font-size: 16px;
+@nerven-length-body-line-height: 26px;
+@nerven-length-code-font-size: 14px;
+@nerven-length-code-line-height: 22px;
+
+@nerven-length-body-grid-item: (32 * @nerven-length-unit);
+
+@nerven-length-page-medium-large-breakpoint: (60 * @nerven-length-unit);
+@nerven-length-page-small-medium-breakpoint: (30 * @nerven-length-unit);
+
+@nerven-time-anim: 100ms;
+
+.logo {
+    display: inline-block;  
+
+    svg {
+        width: 100%;
+    }
+}
+
+.site-nav,
+.site-footer,
+h1,
+h2,
+h3,
+h4,
+h5 {
+    font-family: @nerven-font-asap, 'Open Sans', sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 20px;
+    font-weight: normal;
+    background: @nerven-color-header-background;
+    color: @nerven-color-header-text;
+
+    small {
+        font-size: 16px;
+        line-height: @nerven-length-unit;
+    }
+
+    a {
+        color: @nerven-color-header-link-text;
+        text-decoration: none;
+
+        &:active,
+        &:focus,
+        &:hover {
+            color: @nerven-color-header-link-text-alternate;
+            text-decoration: underline;
+        }
+    }
+
+    .logo {
+        width: (3 * @nerven-length-unit);
+        height: (3 * @nerven-length-unit);
+        position: absolute;
+        margin-top: -@nerven-length-unit-detail;
+        margin-left: -(4 * @nerven-length-unit);
+
+        @media (max-width: @nerven-length-page-small-medium-breakpoint) {
+            position: inherit;
+            float: right;
+            margin-left: @nerven-length-unit;
+        }
+    }
+}
+
+h2 {
+    margin: (2 * @nerven-length-unit) 0 @nerven-length-unit 0;
+}
+
+h3,
+h4,
+h5 {
+    margin: (2 * @nerven-length-unit-detail) 0 @nerven-length-unit-detail 0;
+    font-size: @nerven-length-body-font-size;
+    line-height: @nerven-length-body-line-height;
+    text-transform: uppercase;
+}
+
+code,
+kbd,
+pre {
+    color: @nerven-color-gray-dark;
+    font-family: Consolas, monospace;
+    font-size: @nerven-length-code-font-size;
+    line-height: @nerven-length-code-line-height;
+}
+
+pre {
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+pre.code {
+    white-space: pre;
+
+    /*@media (max-width: @nerven-length-page-medium-large-breakpoint) {
+        margin: 0 -(3 * @nerven-length-unit) 0 -(6 * @nerven-length-unit);
+        padding: 0 (3 * @nerven-length-unit) 0 0;
+        max-width: 100%;
+        overflow-x: auto;
+        text-indent: (6 * @nerven-length-unit);
+    }*/
+
+    @media (max-width: @nerven-length-page-small-medium-breakpoint) {
+        margin: 0;
+        padding: 0;
+        max-width: 100%;
+        overflow-x: auto;
+        text-indent: 0;
+    }
+
+    counter-reset: line;
+    .code-line {
+        &:before {
+            width: (4 * @nerven-length-unit);
+            margin-right: @nerven-length-unit-detail;
+            margin-left: -(4 * @nerven-length-unit + 3 * @nerven-length-unit-detail);
+            padding: 0 @nerven-length-unit-detail;
+            counter-increment: line;
+            content: counter(line);
+            display: inline-block;
+            color: lighten(@nerven-color-gray-light, 35%);
+            text-align: right;
+        }
+    }
+}
+
+kbd {
+    padding: @nerven-length-unit-min @nerven-length-unit-detail;
+    background: darken(@nerven-color-body-background, 5%);
+}
+
+html,
+body {
+    box-sizing: border-box;
+    font: @nerven-length-body-font-size 'Open Sans', sans-serif;
+    line-height: @nerven-length-body-line-height;
+}
+
+* {
+    box-sizing: inherit;
+}
+
+body {
+    // IE hates on us ...
+    ////transition: padding @nerven-time-anim ease-in-out;
+
+    background-color: @nerven-color-body-background;
+    color: @nerven-color-body-text;
+    margin: 0;
+    padding: (3 * @nerven-length-unit) (5 * @nerven-length-unit) 0 (8 * @nerven-length-unit);
+    max-width: (80 * @nerven-length-unit);
+
+    @media (max-width: @nerven-length-page-medium-large-breakpoint) {
+        padding: (2 * @nerven-length-unit) (3 * @nerven-length-unit) 0 (6 * @nerven-length-unit);
+    }
+
+    @media (max-width: @nerven-length-page-small-medium-breakpoint) {
+        padding: @nerven-length-unit;
+    }
+}
+
+a {
+    transition: color @nerven-time-anim ease-in-out;
+    color: @nerven-color-body-link-text;
+    text-decoration-color: lighten(@nerven-color-body-link-text, 35%);
+
+    &:active,
+    &:focus,
+    &:hover {
+        color: @nerven-color-header-link-text-alternate;
+        text-decoration-color: @nerven-color-header-link-text-alternate;
+    }
+}
+
+span.no-word-break {
+    white-space: nowrap;
+}
+
+.site-nav,
+.site-footer {
+    color: @nerven-color-gray-light;
+    font-size: @nerven-length-unit;
+    
+    a {
+        color: inherit;
+        text-decoration-color: lighten(@nerven-color-gray-light, 35%);
+    }
+}
+
+.site-nav {
+    // IE hates on us ...
+    ////transition: top @nerven-time-anim ease-in-out,
+    ////    left @nerven-time-anim ease-in-out;
+    position: absolute;
+    top: @nerven-length-unit-detail;
+    left: (8 * @nerven-length-unit);
+
+    @media (max-width: @nerven-length-page-medium-large-breakpoint) {
+        top: 0;
+        left: @nerven-length-unit;
+    }
+}
+
+.site-header {
+    small {
+        display: block;
+        margin-top: -(1.5 * @nerven-length-unit-detail);
+        line-height: (@nerven-length-unit + @nerven-length-unit-detail);
+    }
+
+    small + br {
+        display: none;
+    }
+
+    .logo {
+        // IE hates on us ...
+        ////transition: top @nerven-time-anim ease-in-out;
+        width: (4 * @nerven-length-unit);
+        height: (4 * @nerven-length-unit);
+        margin-left: -(5 * @nerven-length-unit);
+        top: (4 * @nerven-length-unit);
+
+        @media (max-width: @nerven-length-page-medium-large-breakpoint) {
+            margin-left: -(5 * @nerven-length-unit);
+            top: (3 * @nerven-length-unit);
+            position: absolute;
+        }
+    }
+
+    a {
+        display: block;
+        padding-top: (@nerven-length-unit + @nerven-length-unit-detail);
+    }
+
+    h1 {
+        // IE hates on us ...
+        ////transition: margin @nerven-time-anim ease-in-out;
+        padding: 0 0 (3 * @nerven-length-unit) 0;
+        color: @nerven-color-accent-first;
+
+        a {
+            color: inherit;
+        }
+
+        @media (max-width: @nerven-length-page-small-medium-breakpoint) {
+            margin-top: @nerven-length-unit;
+            margin-left: (5 * @nerven-length-unit);
+        }
+    }
+}
+
+.site-footer {
+    padding: @nerven-length-unit 0;
+    font-style: italic;
+}
+
+.nerven-info-section,
+.project-info-section {
+    p {
+        letter-spacing: .1pt;
+        font-size: 1.2em;
+    }
+
+    &,
+    dt,
+    dd {
+        margin: 0;
+        padding: 0;
+    }
+
+    dt {
+        color: @nerven-color-gray-light;
+
+        &:after {
+            content: ':';
+        }
+    }
+
+    dd {
+        padding-left: (2 * @nerven-length-unit);
+    }
+
+    @media (min-width: @nerven-length-page-medium-large-breakpoint) {
+        dt {
+            width: (12 * @nerven-length-unit);
+            height: (2 * @nerven-length-unit);
+        }
+
+        dd {
+            margin-top: -(2 * @nerven-length-unit);
+            padding-left: (12 * @nerven-length-unit);
+        }
+
+        dd + dd {
+            margin-top: 0;
+        }
+    }
+}
+
+.nerven-info-section {
+    padding-bottom: @nerven-length-unit;
+}
+
+.projects-index {
+    h2 {
+        font-size: (1.25 * @nerven-length-body-font-size);
+    }
+
+    .logo {
+        margin-left: -(4.5 * @nerven-length-unit);
+        padding-left: (.5 * @nerven-length-unit);
+        width: (3.5 * @nerven-length-unit);
+        height: (3.5 * @nerven-length-unit);
+        transition: padding @nerven-time-anim ease-out;
+    }
+
+    a {
+        text-decoration: none;
+
+        &:active,
+        &:focus,
+        &:hover {
+            outline: none;
+
+            h2 {
+                color: @nerven-color-accent-first;
+                text-decoration: underline;
+            }
+        }
+
+        &:active,
+        &:hover {
+            .logo {
+                padding-left: 0;
+            }
+        }
+    }
+
+    section {
+        padding: 0 0 @nerven-length-unit 0;
+    }
+}
