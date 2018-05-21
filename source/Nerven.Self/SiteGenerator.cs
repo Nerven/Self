@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using dotless.Core.configuration;
+using Nerven.Assertion;
 using Nerven.Htmler;
+using Nerven.Htmler.Build;
 using Nerven.Htmler.Core;
+using Nerven.Htmler.Fundamentals;
 using static Nerven.Htmler.Core.HtmlBuilder;
 
 namespace Nerven.Self
@@ -30,10 +35,61 @@ namespace Nerven.Self
 
         private async Task _GenerateSiteAsync(SiteData data, string outputBaseDirectoryPath)
         {
-            var _site = Site(_CreateIndexHtmlDocument(data.Projects));
-            _site.Resources.AddRange(data.Projects.Select(_CreateProjectHtmlDocument).ToList());
+            var _site = Site();
+
+            foreach (var _project in new[] { default(ProjectInfo) }.Concat(data.Projects))
+            {
+                var _logo = _LogoBuilder.GetLogo(_project);
+                var _svgDocument = await _logo.GetSvgDocumentAsync().ConfigureAwait(false);
+                var _svgResource = HtmlStreamResourceProperties.CreateStreamResource(null, () =>
+                {
+                    var _stream = new MemoryStream();
+                    _svgDocument.Save(_stream);
+                    _stream.Position = 0;
+                    return _stream;
+                });
+                _svgResource.Name = new[] { "external-assets", "logo", "svg", _logo.Key + ".svg" };
+                _site.Resources.Add(_svgResource);
+
+                foreach (var _pixelSize in new[] { 16, 32, 48, 256, 512, 4096 })
+                {
+                    var _sizeString = _pixelSize.ToString(CultureInfo.InvariantCulture);
+
+                    var _pngResource = HtmlStreamResourceProperties.CreateStreamResource("image/png", await _logo.GetPngDataAsync(_pixelSize).ConfigureAwait(false));
+                    _pngResource.Name = new[] { "external-assets", "logo", _sizeString + "x" + _sizeString + "_png", _logo.Key + ".png" };
+                    _site.Resources.Add(_pngResource);
+                }
+            }
+
+            _AddFileResourcesToSite(_site, Path.Combine(Environment.CurrentDirectory, "Resources"));
+
+            _site.Resources.Add(await _CreateIndexHtmlDocumentAsync(data.Projects).ConfigureAwait(false));
+
+            foreach (var _project in data.Projects)
+            {
+                var _projectDocumentResource = await _CreateProjectHtmlDocumentAsync(_project).ConfigureAwait(false);
+                _site.Resources.Add(_projectDocumentResource);
+            }
 
             await _site.WriteToDirectory(outputBaseDirectoryPath).ConfigureAwait(false);
+        }
+
+        private static void _AddFileResourcesToSite(IHtmlSite site, string resourcesDirectoryPath)
+        {
+            var _cleanResourcesDirectoryPath = resourcesDirectoryPath.EndsWith("\\", StringComparison.Ordinal)
+                ? resourcesDirectoryPath.Substring(0, resourcesDirectoryPath.Length - 1)
+                : resourcesDirectoryPath;
+            foreach (var _resourceFilePath in Directory.GetFiles(_cleanResourcesDirectoryPath, "*", SearchOption.AllDirectories))
+            {
+                Must.Assertion
+                    .Assert(_resourceFilePath.StartsWith(_cleanResourcesDirectoryPath, StringComparison.Ordinal));
+
+                var _nameParts = _resourceFilePath.Substring(_cleanResourcesDirectoryPath.Length + 1).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                var _resource = HtmlStreamResourceProperties.CreateStreamResource(null, _ => new FileStream(_resourceFilePath, FileMode.Open, FileAccess.Read));
+                _resource.Name = new[] { "assets" }.Concat(_nameParts).ToArray();
+
+                site.Resources.Add(_resource);
+            }
         }
 
         private Uri _ResourceUri(string resourcePath)
@@ -58,43 +114,40 @@ namespace Nerven.Self
             return _DocumentUri(gitHubRepository.GitHub.Name.ToLower());
         }
 
-        private IHtmlDocumentResource _CreateIndexHtmlDocument(IReadOnlyList<ProjectInfo> gitHubRepositories)
+        private async Task<IHtmlDocumentResource> _CreateIndexHtmlDocumentAsync(IReadOnlyList<ProjectInfo> projects)
         {
-            return _CreateHtmlDocument(
+            var _projectsNode = divTag();
+            foreach (var _project in projects)
+            {
+                _projectsNode.Children.Add(
+                    sectionTag(
+                        aTag(
+                            hrefAttr(_DocumentUri(_project)),
+                            headerTag(
+                                h2Tag(
+                                    await _LogoImageAsync(_project).ConfigureAwait(false),
+                                    Text(_project.GitHub.Name))),
+                            pTag(Text(_project.GitHub.Description)))));
+            }
+
+            return await _CreateHtmlDocumentAsync(
                 new string[] { },
                 null,
-                _LogoImage(null),
+                await _LogoImageAsync(null).ConfigureAwait(false),
                 divTag(
-                    ////sectionTag(
-                    ////    classAttr("nerven-info-section"),
-                    ////    pTag(
-                    ////        Text("wherein "),
-                    ////        aTag(
-                    ////            hrefAttr(_PersonalUri),
-                    ////            Text("I")),
-                    ////        Text(" explore how to write software"),
-                    ////        brTag(),
-                    ////        Text("that makes writing software simpler"))),
                     divTag(
                         classAttr("projects-index"),
-                        divTag(gitHubRepositories.Select(_gitHubRepository => sectionTag(
-                            aTag(
-                                hrefAttr(_DocumentUri(_gitHubRepository)),
-                                headerTag(
-                                    h2Tag(
-                                        _LogoImage(_gitHubRepository),
-                                        Text(_gitHubRepository.GitHub.Name))),
-                                pTag(Text(_gitHubRepository.GitHub.Description)))
-                        )).Cast<IHtmlNode>().ToArray()))
-                ));
+                        _projectsNode
+                    )
+                )).ConfigureAwait(false);
         }
 
-        private IHtmlDocumentResource _CreateProjectHtmlDocument(ProjectInfo project)
+        private async Task<IHtmlDocumentResource> _CreateProjectHtmlDocumentAsync(ProjectInfo project)
         {
-            return _CreateHtmlDocument(
+            return await _CreateHtmlDocumentAsync(
                 new[] { project.GitHub.Name.ToLower() },
                 project.GitHub.Name,
-                _LogoImage(project),
+                await _LogoImageAsync(project).ConfigureAwait(false),
                 articleTag(
                     classAttr("project-article"),
                     sectionTag(
@@ -154,12 +207,12 @@ namespace Nerven.Self
                             classAttr("project-license-section"),
                             headerTag(
                                 h2Tag(Text("License"))),
-                            preTag(Text(project.GitHub.LicenseText.Replace("(c)", "©").Replace("(C)", "©"))))));
+                            preTag(Text(project.GitHub.LicenseText.Replace("(c)", "©").Replace("(C)", "©")))))).ConfigureAwait(false);
         }
 
-        private IHtmlNode _LogoImage(ProjectInfo project)
+        private Task<IHtmlChildNode> _LogoImageAsync(ProjectInfo project)
         {
-            return _LogoBuilder.GetLogoHtml(project);
+            return _LogoBuilder.GetLogo(project).GetSvgNodeAsync();
         }
 
         private IHtmlNode _FixReadmeHtml(ProjectInfo project)
@@ -211,7 +264,7 @@ namespace Nerven.Self
             return _readmeElement.ToHtmlNode();
         }
 
-        private IHtmlDocumentResource _CreateHtmlDocument(IReadOnlyList<string> path, string pageTitle, IHtmlNode logo, IHtmlElement contents)
+        private async Task<IHtmlDocumentResource> _CreateHtmlDocumentAsync(IReadOnlyList<string> path, string pageTitle, IHtmlNode logo, IHtmlElement contents)
         {
             var _header = pageTitle == null
                 ? h1Tag(
@@ -228,11 +281,11 @@ namespace Nerven.Self
                         brTag(),
                         Text(pageTitle)));
 
-            Func<IHtmlNode> _breadcrumbSeparator = () => spanTag(Text(" / "));
+            IHtmlNode BreadcrumbSeparator() => spanTag(Text(" / "));
             var _breadcrumbs = path.Count == 0
                 ? null
-                : new[] { spanTag(aTag(hrefAttr(_DocumentUri()), Text("Nerven")), _breadcrumbSeparator()) }
-                    .Concat(path.Take(path.Count - 1).Select(_level => spanTag(Text("..."), _breadcrumbSeparator())))
+                : new[] { spanTag(aTag(hrefAttr(_DocumentUri()), await _LogoImageAsync(null).ConfigureAwait(false), Text("Nerven")), BreadcrumbSeparator()) }
+                    .Concat(path.Take(path.Count - 1).Select(_level => spanTag(Text("..."), BreadcrumbSeparator())))
                     .Concat(new[] { spanTag(aTag(hrefAttr(_DocumentUri(path)), Text(pageTitle))) })
                     .ToArray<IHtmlNode>();
 
@@ -247,15 +300,15 @@ namespace Nerven.Self
                             titleTag(Text(pageTitle == null ? "Nerven" : $"Nerven {pageTitle}")),
                             styleTag(
                                 typeAttr("text/css"),
-                                _GetStyleSheet()),
+                                _GetStyleSheet())),
                             ////linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "16x16"), hrefAttr(_ResourceUri("/external-assets/logo/16x16_png/nerven.png"))),
                             ////linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "48x48"), hrefAttr(_ResourceUri("/external-assets/logo/48x48_png/nerven.png"))),
                             ////linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "256x256"), hrefAttr(_ResourceUri("/external-assets/logo/256x256_png/nerven.png"))),
                             ////linkTag(relAttr("icon"), typeAttr("image/svg+xml"), Attribute("sizes", "any"), hrefAttr(_ResourceUri("/external-assets/logo/svg_traced/nerven.svg")))),
-                            linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "16x16"), hrefAttr(_LogoBuilder.GetLogoUri(null, LogoFormat.Png16x16))),
-                            linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "48x48"), hrefAttr(_LogoBuilder.GetLogoUri(null, LogoFormat.Png48x48))),
-                            linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "256x256"), hrefAttr(_LogoBuilder.GetLogoUri(null, LogoFormat.Png256x256))),
-                            linkTag(relAttr("icon"), typeAttr("image/svg+xml"), Attribute("sizes", "any"), hrefAttr(_LogoBuilder.GetLogoUri(null, LogoFormat.Svg)))),
+                            ////linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "16x16"), hrefAttr(_LogoBuilder.GetLogoUri(null, LogoFormat.Png16x16))),
+                            ////linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "48x48"), hrefAttr(_LogoBuilder.GetLogoUri(null, LogoFormat.Png48x48))),
+                            ////linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "256x256"), hrefAttr(_LogoBuilder.GetLogoUri(null, LogoFormat.Png256x256))),
+                            ////linkTag(relAttr("icon"), typeAttr("image/svg+xml"), Attribute("sizes", "any"), hrefAttr(_LogoBuilder.GetLogoUri(null, LogoFormat.Svg)))),
                         bodyTag(
                             divTag(
                                 _breadcrumbs == null
@@ -281,7 +334,14 @@ namespace Nerven.Self
                                         spanTag(
                                             aTag(
                                                 hrefAttr(_PersonalUri),
-                                                Text("Victor Blomberg"))))))))));
+                                                Text("Victor Blomberg")))),
+                                    divTag(
+                                        spanTag(
+                                            Text("This website, including the Nerven logo and all Nerven project logos, was automagically generated by ")),
+                                        spanTag(
+                                            aTag(
+                                                hrefAttr("https://github.com/Nerven/Self/"),
+                                                Text("Nerven.Self"))))))))));
         }
 
         private IHtmlRaw _GetStyleSheet()

@@ -17,22 +17,34 @@
         },
         {
             "Name": "CommandLineParser",
+            "DotNetPlatforms": [
+                ".NET Standard 1.0"
+            ],
             "NugetPackages": [
                 "Nerven.CommandLineParser.Core"
             ]
         },
         {
             "Name": "Htmler",
+            "DotNetPlatforms": [
+                ".NET Standard 1.3"
+            ],
             "LogoText": "Htm."
         },
         {
             "Name": "StringParser",
+            "DotNetPlatforms": [
+                ".NET Standard 1.1"
+            ],
             "NugetPackages": [
                 "Nerven.StringParser.Core"
             ]
         },
         {
             "Name": "Taskuler",
+            "DotNetPlatforms": [
+                ".NET Standard 1.1"
+            ],
             "NugetPackages": [
                 "Nerven.Taskuler.Core"
             ]

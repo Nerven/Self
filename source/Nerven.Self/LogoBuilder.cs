@@ -1,34 +1,34 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using System.Xml.XPath;
 using Nerven.Assertion;
-using Nerven.Htmler;
 using Nerven.Htmler.Core;
+using Nerven.Htmler.Fundamentals;
+using Nito.AsyncEx;
 using static Nerven.Htmler.Core.HtmlBuilder;
 
 namespace Nerven.Self
 {
     public sealed class LogoBuilder
     {
-        private readonly string _BaseUri;
-        private readonly string _OutputBaseDirectoryPath;
-        private readonly string[] _LogoDirectoryPath;
-        private readonly Dictionary<string, IHtmlNode> _LogoHtmlNodes;
+        private readonly ConcurrentDictionary<string, Logo> _Logos;
 
-        public LogoBuilder(string baseUri, string outputBaseDirectoryPath, string[] logoDirectoryPath)
+        public LogoBuilder()
         {
-            _BaseUri = baseUri;
-            _OutputBaseDirectoryPath = outputBaseDirectoryPath;
-            _LogoDirectoryPath = logoDirectoryPath;
-            _LogoHtmlNodes = new Dictionary<string, IHtmlNode>();
+            _Logos = new ConcurrentDictionary<string, Logo>();
+        }
+        
+        public Logo GetLogo(ProjectInfo project)
+        {
+            return _Logos.GetOrAdd(_GetKey(project), _ => _CreateLogo(project));
         }
 
-        public async Task BuildLogo(ProjectInfo project)
+        private Logo _CreateLogo(ProjectInfo project)
         {
             var _key = _GetKey(project);
             var _text = _GetText(project);
@@ -107,75 +107,7 @@ namespace Nerven.Self
 
             var _svgWithTextDocument = XDocument.Parse(_svgString);
 
-            var _svgWithTextFilePath = GetLogoFilePath(project, LogoFormat.SvgWithText);
-            _CreateFileDirectoryIfMissing(_svgWithTextFilePath);
-            var _svgFilePath = GetLogoFilePath(project, LogoFormat.Svg);
-            _CreateFileDirectoryIfMissing(_svgFilePath);
-
-            _svgWithTextDocument.Save(_svgWithTextFilePath);
-
-            using (var _inkscapeProcess = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = @"c:\Program Files\Inkscape\inkscape.exe",
-                    Arguments = $@"--file ""{_svgWithTextFilePath}"" --export-text-to-path --export-plain-svg ""{_svgFilePath}""",
-                },
-                EnableRaisingEvents = true,
-            })
-            {
-                var _exitSource = new TaskCompletionSource<int>();
-                _inkscapeProcess.Exited += (_sender, _v) => _exitSource.SetResult(0);
-
-                Must.Assertion
-                    .Assert(_inkscapeProcess.Start());
-
-                await _exitSource.Task.ConfigureAwait(false);
-
-                Must.Assertion
-                    .Assert(_inkscapeProcess.ExitCode == 0);
-            }
-
-            var _svgDocumentWithPath = XDocument.Load(_svgFilePath);
-            var _svgDocument = XDocument.Load(_svgWithTextFilePath);
-
-            var _textPaths = _svgDocumentWithPath.Root?
-                .Element(_SvgElementName("g"))?
-                .Element(_SvgElementName("g"))?
-                .Element(_SvgElementName("g"))?
-                .Elements(_SvgElementName("path"))
-                .Select(_pathElement => _pathElement.Attribute("d")?.Value)
-                .ToList();
-
-            Must.Assertion
-                .Assert(_textPaths != null)
-                .Assert(_textPaths.Count != 0)
-                .Assert(_svgDocument.Root != null);
-
-            foreach (var _element in _svgDocument.Root.DescendantsAndSelf().ToList())
-            {
-                if (_element.Name.LocalName == "defs")
-                {
-                    _element.Remove();
-                }
-                else if (_element.Attribute("id")?.Value == $"{_key}-logo-text")
-                {
-                    _element.ReplaceWith(_textPaths.Select(_textPath => new XElement(
-                        _SvgElementName("path"),
-                        new XAttribute("style", "fill:#ffffff"),
-                        new XAttribute("d", _textPath),
-                        string.Empty)));
-                }
-                else if (_element.IsEmpty)
-                {
-                    _element.Value = string.Empty;
-                }
-            }
-
-            _svgDocument.Save(_svgFilePath);
-
-            var _logoHtml = spanTag(classAttr("logo"), _svgDocument.Root.ToHtmlNode());
-            _LogoHtmlNodes.Add(_key, _logoHtml);
+            return new Logo(project, _key, _svgWithTextDocument);
         }
 
         private static XName _SvgElementName(string localName)
@@ -183,64 +115,11 @@ namespace Nerven.Self
             return XName.Get(localName, "http://www.w3.org/2000/svg");
         }
 
-        public IHtmlNode GetLogoHtml(ProjectInfo project)
-        {
-            return _LogoHtmlNodes[_GetKey(project)].Clone();
-        }
-
-        public string GetLogoFilePath(ProjectInfo project, LogoFormat format)
-        {
-            return Path.Combine(_OutputBaseDirectoryPath, Path.Combine(_LogoDirectoryPath), _GetFormatKey(format), _GetKey(project) + _GetExtension(format));
-        }
-
-        public string GetLogoUri(ProjectInfo project, LogoFormat format)
-        {
-            return new Uri($"{_BaseUri}/{string.Join("/", _LogoDirectoryPath.Select(Uri.EscapeDataString))}/{_GetFormatKey(format)}/{_GetKey(project)}{_GetExtension(format)}").ToString();
-        }
-
         private static string _GetKey(ProjectInfo project)
         {
             return project == null ? "nerven" : $"nerven-{project.GitHub.Name.ToLower()}";
         }
-
-        private static string _GetFormatKey(LogoFormat format)
-        {
-            switch (format)
-            {
-                case LogoFormat.Svg:
-                    return "svg";
-                case LogoFormat.SvgWithText:
-                    return "svg-text";
-                case LogoFormat.Png16x16:
-                    return "16x16_png";
-                case LogoFormat.Png48x48:
-                    return "48x48_png";
-                case LogoFormat.Png256x256:
-                    return "256x256_png";
-                case LogoFormat.Png4096x4096:
-                    return "4096x4096_png";
-                default:
-                    throw Must.Assertion.AssertNever();
-            }
-        }
-
-        private static string _GetExtension(LogoFormat format)
-        {
-            switch (format)
-            {
-                case LogoFormat.Svg:
-                case LogoFormat.SvgWithText:
-                    return ".svg";
-                case LogoFormat.Png16x16:
-                case LogoFormat.Png48x48:
-                case LogoFormat.Png256x256:
-                case LogoFormat.Png4096x4096:
-                    return ".png";
-                default:
-                    throw Must.Assertion.AssertNever();
-            }
-        }
-
+        
         private static string _GetText(ProjectInfo project)
         {
             if (project == null)
@@ -262,11 +141,175 @@ namespace Nerven.Self
             return new string(_chars);
         }
 
-        private static void _CreateFileDirectoryIfMissing(string filePath)
+        public sealed class Logo
         {
-            var _directoryPath = Path.GetDirectoryName(filePath);
-            if (_directoryPath != null && !Directory.Exists(_directoryPath))
-                Directory.CreateDirectory(_directoryPath);
+            private readonly ProjectInfo _Project;
+            private readonly XDocument _SvgWithTextDocument;
+            private readonly AsyncLock _Lock;
+            private readonly Dictionary<int, byte[]> _PngBitmaps;
+            private IHtmlChildNode _SvgNode;
+
+            public Logo(ProjectInfo project, string key, XDocument svgWithTextDocument)
+            {
+                _Project = project;
+                Key = key;
+                _SvgWithTextDocument = svgWithTextDocument;
+                _Lock = new AsyncLock();
+                _PngBitmaps = new Dictionary<int, byte[]>();
+            }
+
+            public string Key { get; }
+
+            public Task<XDocument> GetSvgDocumentAsync()
+            {
+                return Task.FromResult(_SvgWithTextDocument);
+            }
+
+            public async Task<IHtmlChildNode> GetSvgNodeAsync()
+            {
+                using (await _Lock.LockAsync().ConfigureAwait(false))
+                {
+                    if (_SvgNode == null)
+                        _SvgNode = await _GenerateSvgNode(_Project, _SvgWithTextDocument).ConfigureAwait(false);
+                }
+
+                return _SvgNode.CloneChildNode();
+            }
+
+            public async Task<byte[]> GetPngDataAsync(int size)
+            {
+                using (await _Lock.LockAsync().ConfigureAwait(false))
+                {
+                    if (!_PngBitmaps.TryGetValue(size, out var _data))
+                    {
+                        _data = await _GeneratePngBitmap(_SvgWithTextDocument, size).ConfigureAwait(false);
+                        _PngBitmaps[size] = _data;
+                    }
+
+                    return _data;
+                }
+            }
+
+            public async Task<string> GetPngDataUriAsync(int size)
+            {
+                var _bitmapData = await GetPngDataAsync(size).ConfigureAwait(false);
+                return $"image/png;base64,{Convert.ToBase64String(_bitmapData)}";
+            }
+
+            private async Task<IHtmlChildNode> _GenerateSvgNode(ProjectInfo project, XDocument svgWithTextDocument)
+            {
+                var _key = _GetKey(project);
+
+                XDocument _svgDocumentWithPath;
+                XDocument _svgDocument;
+
+                var _tempDirectoryPath = Path.Combine(Path.GetTempPath(), $"{typeof(LogoBuilder).FullName}_{Guid.NewGuid()}");
+                try
+                {
+                    var _svgWithTextFilePath = Path.Combine(_tempDirectoryPath, $"{Guid.NewGuid()}.svg");
+                    _CreateFileDirectoryIfMissing(_svgWithTextFilePath);
+                    svgWithTextDocument.Save(_svgWithTextFilePath);
+
+                    var _svgFilePath = Path.Combine(_tempDirectoryPath, $"{Guid.NewGuid()}.svg");
+                    await _RunInkscape(_svgWithTextFilePath, $@"--export-text-to-path --export-plain-svg ""{_svgFilePath}""").ConfigureAwait(false);
+                    _svgDocumentWithPath = XDocument.Load(_svgFilePath);
+                    _svgDocument = XDocument.Load(_svgWithTextFilePath);
+                }
+                finally
+                {
+                    if (Directory.Exists(_tempDirectoryPath))
+                        Directory.Delete(_tempDirectoryPath, true);
+                }
+
+                var _textPaths = _svgDocumentWithPath.Root?
+                    .Element(_SvgElementName("g"))?
+                    .Element(_SvgElementName("g"))?
+                    .Element(_SvgElementName("g"))?
+                    .Elements(_SvgElementName("path"))
+                    .Select(_pathElement => _pathElement.Attribute("d")?.Value)
+                    .ToList();
+
+                Must.Assertion
+                    .Assert(_textPaths != null)
+                    .Assert(_textPaths.Count != 0)
+                    .Assert(_svgDocument.Root != null);
+
+                foreach (var _element in _svgDocument.Root.DescendantsAndSelf().ToList())
+                {
+                    if (_element.Name.LocalName == "defs")
+                    {
+                        _element.Remove();
+                    }
+                    else if (_element.Attribute("id")?.Value == $"{_key}-logo-text")
+                    {
+                        _element.ReplaceWith(_textPaths.Select(_textPath => new XElement(
+                            _SvgElementName("path"),
+                            new XAttribute("style", "fill:#ffffff"),
+                            new XAttribute("d", _textPath),
+                            string.Empty)));
+                    }
+                    else if (_element.IsEmpty)
+                    {
+                        _element.Value = string.Empty;
+                    }
+                }
+
+                var _logoHtml = spanTag(classAttr("logo"), _svgDocument.Root.ToHtmlNode());
+                return _logoHtml;
+            }
+
+            private async Task<byte[]> _GeneratePngBitmap(XDocument svgWithTextDocument, int pixelSize)
+            {
+                var _tempDirectoryPath = Path.Combine(Path.GetTempPath(), $"{typeof(LogoBuilder).FullName}_{Guid.NewGuid()}");
+                try
+                {
+                    var _svgWithTextFilePath = Path.Combine(_tempDirectoryPath, $"{Guid.NewGuid()}.svg");
+                    _CreateFileDirectoryIfMissing(_svgWithTextFilePath);
+                    svgWithTextDocument.Save(_svgWithTextFilePath);
+
+                    var _pngFilePath = Path.Combine(_tempDirectoryPath, $"{Guid.NewGuid()}.png");
+                    await _RunInkscape(_svgWithTextFilePath, $@"--export-width {pixelSize} --export-height {pixelSize} --export-png ""{_pngFilePath}""").ConfigureAwait(false);
+                    return File.ReadAllBytes(_pngFilePath);
+                }
+                finally
+                {
+                    if (Directory.Exists(_tempDirectoryPath))
+                        Directory.Delete(_tempDirectoryPath, true);
+                }
+            }
+
+            private static async Task _RunInkscape(string sourceFilePath, string command)
+            {
+                using (var _inkscapeProcess = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = @"c:\Program Files\Inkscape\inkscape.exe",
+                        Arguments = $@"--file ""{sourceFilePath}"" {command}",
+                    },
+                    EnableRaisingEvents = true,
+                })
+                {
+                    var _exitSource = new TaskCompletionSource<int>();
+                    _inkscapeProcess.Exited += (_sender, _v) => _exitSource.SetResult(0);
+
+                    Must.Assertion
+                        .Assert(_inkscapeProcess.Start());
+
+                    await _exitSource.Task.ConfigureAwait(false);
+
+                    Must.Assertion
+                        .Assert(_inkscapeProcess.ExitCode == 0);
+                }
+            }
+
+            private static void _CreateFileDirectoryIfMissing(string filePath)
+            {
+                var _directoryPath = Path.GetDirectoryName(filePath);
+                if (_directoryPath != null && !Directory.Exists(_directoryPath))
+                    Directory.CreateDirectory(_directoryPath);
+            }
         }
     }
 }
+

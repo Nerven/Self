@@ -1,12 +1,13 @@
 ﻿@nerven-uri-base: '__BASE_URI';
+@nerven-assets-uri-base: '@{nerven-uri-base}/assets';
 
 @font-face {
     font-family: 'Asap';
-    src: url('@{nerven-uri-base}/font-asap/Asap-Regular-webfont.eot');
-    src: url('@{nerven-uri-base}/font-asap/Asap-Regular-webfont.eot?#iefix') format('embedded-opentype'),
-         url('@{nerven-uri-base}/font-asap/Asap-Regular-webfont.woff') format('woff'),
-         url('@{nerven-uri-base}/font-asap/Asap-Regular-webfont.ttf') format('truetype'),
-         url('@{nerven-uri-base}/font-asap/Asap-Regular-webfont.svg#AsapRegular') format('svg');
+    src: url('@{nerven-assets-uri-base}/font-asap/Asap-Regular-webfont.eot');
+    src: url('@{nerven-assets-uri-base}/font-asap/Asap-Regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('@{nerven-assets-uri-base}/font-asap/Asap-Regular-webfont.woff') format('woff'),
+         url('@{nerven-assets-uri-base}/font-asap/Asap-Regular-webfont.ttf') format('truetype'),
+         url('@{nerven-assets-uri-base}/font-asap/Asap-Regular-webfont.svg#AsapRegular') format('svg');
     font-weight: normal;
     font-style: normal;
 
@@ -14,11 +15,11 @@
 
 @font-face {
     font-family: 'Asap';
-    src: url('@{nerven-uri-base}/font-asap/Asap-Italic-webfont.eot');
-    src: url('@{nerven-uri-base}/font-asap/Asap-Italic-webfont.eot?#iefix') format('embedded-opentype'),
-         url('@{nerven-uri-base}/font-asap/Asap-Italic-webfont.woff') format('woff'),
-         url('@{nerven-uri-base}/font-asap/Asap-Italic-webfont.ttf') format('truetype'),
-         url('@{nerven-uri-base}/font-asap/Asap-Italic-webfont.svg#AsapItalic') format('svg');
+    src: url('@{nerven-assets-uri-base}/font-asap/Asap-Italic-webfont.eot');
+    src: url('@{nerven-assets-uri-base}/font-asap/Asap-Italic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('@{nerven-assets-uri-base}/font-asap/Asap-Italic-webfont.woff') format('woff'),
+         url('@{nerven-assets-uri-base}/font-asap/Asap-Italic-webfont.ttf') format('truetype'),
+         url('@{nerven-assets-uri-base}/font-asap/Asap-Italic-webfont.svg#AsapItalic') format('svg');
     font-weight: normal;
     font-style: italic;
 
@@ -26,11 +27,11 @@
 
 @font-face {
     font-family: 'Asap';
-    src: url('@{nerven-uri-base}/font-asap/Asap-Bold-webfont.eot');
-    src: url('@{nerven-uri-base}/font-asap/Asap-Bold-webfont.eot?#iefix') format('embedded-opentype'),
-         url('@{nerven-uri-base}/font-asap/Asap-Bold-webfont.woff') format('woff'),
-         url('@{nerven-uri-base}/font-asap/Asap-Bold-webfont.ttf') format('truetype'),
-         url('@{nerven-uri-base}/font-asap/Asap-Bold-webfont.svg#AsapBold') format('svg');
+    src: url('@{nerven-assets-uri-base}/font-asap/Asap-Bold-webfont.eot');
+    src: url('@{nerven-assets-uri-base}/font-asap/Asap-Bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('@{nerven-assets-uri-base}/font-asap/Asap-Bold-webfont.woff') format('woff'),
+         url('@{nerven-assets-uri-base}/font-asap/Asap-Bold-webfont.ttf') format('truetype'),
+         url('@{nerven-assets-uri-base}/font-asap/Asap-Bold-webfont.svg#AsapBold') format('svg');
     font-weight: bold;
     font-style: normal;
 
@@ -38,11 +39,11 @@
 
 @font-face {
     font-family: 'Asap';
-    src: url('@{nerven-uri-base}/font-asap/Asap-BoldItalic-webfont.eot');
-    src: url('@{nerven-uri-base}/font-asap/Asap-BoldItalic-webfont.eot?#iefix') format('embedded-opentype'),
-         url('@{nerven-uri-base}/font-asap/Asap-BoldItalic-webfont.woff') format('woff'),
-         url('@{nerven-uri-base}/font-asap/Asap-BoldItalic-webfont.ttf') format('truetype'),
-         url('@{nerven-uri-base}/font-asap/Asap-BoldItalic-webfont.svg#AsapBoldItalic') format('svg');
+    src: url('@{nerven-assets-uri-base}/font-asap/Asap-BoldItalic-webfont.eot');
+    src: url('@{nerven-assets-uri-base}/font-asap/Asap-BoldItalic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('@{nerven-assets-uri-base}/font-asap/Asap-BoldItalic-webfont.woff') format('woff'),
+         url('@{nerven-assets-uri-base}/font-asap/Asap-BoldItalic-webfont.ttf') format('truetype'),
+         url('@{nerven-assets-uri-base}/font-asap/Asap-BoldItalic-webfont.svg#AsapBoldItalic') format('svg');
     font-weight: bold;
     font-style: italic;
 
@@ -52,6 +53,7 @@
 @nerven-color-black: #222;
 @nerven-color-gray: #555;
 @nerven-color-gray-light: #777;
+@nerven-color-gray-light-light: lighten(@nerven-color-gray-light, 35%);
 @nerven-color-gray-dark: #444;
 @nerven-color-accent-first: #248400;
 @nerven-color-accent-second: @nerven-color-gray;
@@ -60,6 +62,8 @@
 @nerven-color-body-text: @nerven-color-black;
 @nerven-color-body-link-text: @nerven-color-accent-second;
 @nerven-color-body-link-text-alternate: @nerven-color-gray-dark;
+
+@nerven-color-nav-background: fade(@nerven-color-gray-light-light, 80%);
 
 @nerven-color-header-background: transparent;
 @nerven-color-header-text: @nerven-color-accent-second;
@@ -231,7 +235,7 @@ body {
     background-color: @nerven-color-body-background;
     color: @nerven-color-body-text;
     margin: 0;
-    padding: (3 * @nerven-length-unit) (5 * @nerven-length-unit) 0 (8 * @nerven-length-unit);
+    padding: (5 * @nerven-length-unit) (5 * @nerven-length-unit) 0 (8 * @nerven-length-unit);
     max-width: (80 * @nerven-length-unit);
 
     @media (max-width: @nerven-length-page-medium-large-breakpoint) {
@@ -260,28 +264,56 @@ span.no-word-break {
     white-space: nowrap;
 }
 
-.site-nav,
-.site-footer {
-    color: @nerven-color-gray-light;
-    font-size: @nerven-length-unit;
-    
-    a {
-        color: inherit;
-        text-decoration-color: lighten(@nerven-color-gray-light, 35%);
-    }
-}
-
 .site-nav {
     // IE hates on us ...
     ////transition: top @nerven-time-anim ease-in-out,
     ////    left @nerven-time-anim ease-in-out;
-    position: absolute;
-    top: @nerven-length-unit-detail;
-    left: (8 * @nerven-length-unit);
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    right: 0;
+    left: 0;
+    padding: @nerven-length-unit-detail (8 * @nerven-length-unit) @nerven-length-unit-detail ((8 * @nerven-length-unit) - @nerven-length-unit-detail);
+    background: @nerven-color-nav-background;
+    color: @nerven-color-gray-light;
+    font-size: @nerven-length-unit;
 
-    @media (max-width: @nerven-length-page-medium-large-breakpoint) {
-        top: 0;
-        left: @nerven-length-unit;
+    a {
+        padding: @nerven-length-unit-detail;
+        color: @nerven-color-gray;
+        text-decoration-color: @nerven-color-gray-light-light;
+
+        &:hover {
+            color: @nerven-color-gray-dark;
+            text-decoration-color: @nerven-color-gray;
+        }
+    }
+
+    span span {
+        margin: 0 @nerven-length-unit-detail;
+    }
+
+    span:first-child {
+        a {
+            margin-left: -@nerven-length-unit-detail;
+            padding-left: @nerven-length-unit;
+
+            &:hover span.logo {
+                width: ((2 * @nerven-length-unit) + @nerven-length-unit-detail);
+                margin: -(.5 * @nerven-length-unit-detail) 0 0 -((3 * @nerven-length-unit) + (.5 * @nerven-length-unit-detail));
+            }
+        }
+
+        span {
+            margin: 0 @nerven-length-unit-detail 0 0;
+        }
+    }
+
+    span span.logo {
+        width: (2 * @nerven-length-unit);
+        position: absolute;
+        margin: 0 0 0 -(3 * @nerven-length-unit);
+        transition: margin @nerven-time-anim ease-out, width @nerven-time-anim ease-out;
     }
 }
 
@@ -302,7 +334,7 @@ span.no-word-break {
         width: (4 * @nerven-length-unit);
         height: (4 * @nerven-length-unit);
         margin-left: -(5 * @nerven-length-unit);
-        top: (4 * @nerven-length-unit);
+        top: (6 * @nerven-length-unit);
 
         @media (max-width: @nerven-length-page-medium-large-breakpoint) {
             margin-left: -(5 * @nerven-length-unit);
@@ -336,6 +368,18 @@ span.no-word-break {
 .site-footer {
     padding: @nerven-length-unit 0;
     font-style: italic;
+
+    color: @nerven-color-gray-light;
+    font-size: @nerven-length-unit;
+
+    a {
+        color: @nerven-color-gray;
+        text-decoration-color: @nerven-color-gray-light;
+
+        &:hover {
+            text-decoration-color: @nerven-color-gray;
+        }
+    }
 }
 
 .nerven-info-section,

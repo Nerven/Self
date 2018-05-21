@@ -1,0 +1,50 @@
+/* http://www.fontsquirrel.com/fonts/asap */
+
+@font-face {
+    font-family: 'Asap';
+    src: url('./Asap-Regular-webfont.eot');
+    src: url('./Asap-Regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('./Asap-Regular-webfont.woff') format('woff'),
+         url('./Asap-Regular-webfont.ttf') format('truetype'),
+         url('./Asap-Regular-webfont.svg#AsapRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Asap';
+    src: url('./Asap-Italic-webfont.eot');
+    src: url('./Asap-Italic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('./Asap-Italic-webfont.woff') format('woff'),
+         url('./Asap-Italic-webfont.ttf') format('truetype'),
+         url('./Asap-Italic-webfont.svg#AsapItalic') format('svg');
+    font-weight: normal;
+    font-style: italic;
+
+}
+
+@font-face {
+    font-family: 'Asap';
+    src: url('./Asap-Bold-webfont.eot');
+    src: url('./Asap-Bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('./Asap-Bold-webfont.woff') format('woff'),
+         url('./Asap-Bold-webfont.ttf') format('truetype'),
+         url('./Asap-Bold-webfont.svg#AsapBold') format('svg');
+    font-weight: bold;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Asap';
+    src: url('./Asap-BoldItalic-webfont.eot');
+    src: url('./Asap-BoldItalic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('./Asap-BoldItalic-webfont.woff') format('woff'),
+         url('./Asap-BoldItalic-webfont.ttf') format('truetype'),
+         url('./Asap-BoldItalic-webfont.svg#AsapBoldItalic') format('svg');
+    font-weight: bold;
+    font-style: italic;
+
+}
+
