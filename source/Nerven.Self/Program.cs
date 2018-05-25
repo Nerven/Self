@@ -15,6 +15,7 @@ namespace Nerven.Self
         public const string ExtraDataFilePathOptionKey = "extraDataFile";
         public const string CacheToOptionKey = "cacheTo";
         public const string CacheFromOptionKey = "cacheFrom";
+        public const string PngOptExecutable = "pngOptExec";
         public const string GitCommit = "gitCommit";
         public const string GitAuthor = "gitAuthor";
         public const string GitPush = "gitPush";
@@ -34,11 +35,12 @@ namespace Nerven.Self
             var _extraDataFile = _GetCommandLineOption(_commandLine, ExtraDataFilePathOptionKey);
             var _cacheTo = _GetCommandLineOption(_commandLine, CacheToOptionKey);
             var _cacheFrom = _GetCommandLineOption(_commandLine, CacheFromOptionKey);
+            var _pngOptExecutable = _GetCommandLineOption(_commandLine, PngOptExecutable);
             var _gitCommit = _HasCommandLineFlag(_commandLine, GitCommit);
             var _gitAuthor = _GetCommandLineOption(_commandLine, GitAuthor);
             var _gitPush = _HasCommandLineFlag(_commandLine, GitPush);
 
-            await MainAsync(_cacheTo, _cacheFrom, _outputBaseDirectoryPath, _clearOutputDirectory, _baseUri, _gitHubToken, _extraDataFile, _gitCommit, _gitAuthor, _gitPush).ConfigureAwait(false);
+            await MainAsync(_cacheTo, _cacheFrom, _outputBaseDirectoryPath, _clearOutputDirectory, _baseUri, _gitHubToken, _extraDataFile, _pngOptExecutable, _gitCommit, _gitAuthor, _gitPush).ConfigureAwait(false);
         }
 
         public static async Task MainAsync(string cacheTo,
@@ -48,6 +50,7 @@ namespace Nerven.Self
             string baseUri,
             string gitHubToken,
             string extraDataFile,
+            string pngOptExecutable,
             bool gitCommit,
             string gitAuthor,
             bool gitPush)
@@ -78,7 +81,7 @@ namespace Nerven.Self
                 }
             }
 
-            var _logoBuilder = new LogoBuilder();
+            var _logoBuilder = new LogoBuilder(pngOptExecutable);
             await SiteGenerator.GenerateSiteAsync(baseUri, _logoBuilder, _data, outputBaseDirectoryPath).ConfigureAwait(false);
             await SitePublisher.PublishSiteAsync(outputBaseDirectoryPath, gitCommit, gitAuthor, gitPush).ConfigureAwait(false);
         }

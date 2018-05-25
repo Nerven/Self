@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using CliWrap;
 using Nerven.Assertion;
 using Nerven.Htmler.Core;
 using Nerven.Htmler.Fundamentals;
@@ -16,10 +17,12 @@ namespace Nerven.Self
 {
     public sealed class LogoBuilder
     {
+        private readonly string _PngOptExecutable;
         private readonly ConcurrentDictionary<string, Logo> _Logos;
 
-        public LogoBuilder()
+        public LogoBuilder(string pngOptExecutable)
         {
+            _PngOptExecutable = pngOptExecutable;
             _Logos = new ConcurrentDictionary<string, Logo>();
         }
         
@@ -107,7 +110,7 @@ namespace Nerven.Self
 
             var _svgWithTextDocument = XDocument.Parse(_svgString);
 
-            return new Logo(project, _key, _svgWithTextDocument);
+            return new Logo(this, project, _key, _svgWithTextDocument);
         }
 
         private static XName _SvgElementName(string localName)
@@ -143,14 +146,16 @@ namespace Nerven.Self
 
         public sealed class Logo
         {
+            private readonly LogoBuilder _LogoBuilder;
             private readonly ProjectInfo _Project;
             private readonly XDocument _SvgWithTextDocument;
             private readonly AsyncLock _Lock;
             private readonly Dictionary<int, byte[]> _PngBitmaps;
             private IHtmlChildNode _SvgNode;
 
-            public Logo(ProjectInfo project, string key, XDocument svgWithTextDocument)
+            public Logo(LogoBuilder logoBuilder, ProjectInfo project, string key, XDocument svgWithTextDocument)
             {
+                _LogoBuilder = logoBuilder;
                 _Project = project;
                 Key = key;
                 _SvgWithTextDocument = svgWithTextDocument;
@@ -269,6 +274,16 @@ namespace Nerven.Self
 
                     var _pngFilePath = Path.Combine(_tempDirectoryPath, $"{Guid.NewGuid()}.png");
                     await _RunInkscape(_svgWithTextFilePath, $@"--export-width {pixelSize} --export-height {pixelSize} --export-png ""{_pngFilePath}""").ConfigureAwait(false);
+
+                    if (!string.IsNullOrEmpty(_LogoBuilder._PngOptExecutable))
+                    {
+                        using (var _pngOptCli = new Cli(_LogoBuilder._PngOptExecutable))
+                        {
+                            var _pngOptResult = await _pngOptCli.ExecuteAsync($"\"{_pngFilePath}\"").ConfigureAwait(false);
+                            _pngOptResult.ThrowIfError();
+                        }
+                    }
+
                     return File.ReadAllBytes(_pngFilePath);
                 }
                 finally
