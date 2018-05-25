@@ -36,30 +36,10 @@ namespace Nerven.Self
         private async Task _GenerateSiteAsync(SiteData data, string outputBaseDirectoryPath)
         {
             var _site = Site();
-
-            foreach (var _project in new[] { default(ProjectInfo) }.Concat(data.Projects))
-            {
-                var _logo = _LogoBuilder.GetLogo(_project);
-                var _svgDocument = await _logo.GetSvgDocumentAsync().ConfigureAwait(false);
-                var _svgResource = HtmlStreamResourceProperties.CreateStreamResource(null, () =>
-                {
-                    var _stream = new MemoryStream();
-                    _svgDocument.Save(_stream);
-                    _stream.Position = 0;
-                    return _stream;
-                });
-                _svgResource.Name = new[] { "external-assets", "logo", "svg", _logo.Key + ".svg" };
-                _site.Resources.Add(_svgResource);
-
-                foreach (var _pixelSize in new[] { 16, 32, 48, 256, 512, 4096 })
-                {
-                    var _sizeString = _pixelSize.ToString(CultureInfo.InvariantCulture);
-
-                    var _pngResource = HtmlStreamResourceProperties.CreateStreamResource("image/png", await _logo.GetPngDataAsync(_pixelSize).ConfigureAwait(false));
-                    _pngResource.Name = new[] { "external-assets", "logo", _sizeString + "x" + _sizeString + "_png", _logo.Key + ".png" };
-                    _site.Resources.Add(_pngResource);
-                }
-            }
+            
+            await Task.WhenAll(
+                new[] { default(ProjectInfo) }.Concat(data.Projects)
+                    .Select(_project => _GenerateProjectLogosAsync(_project, _site))).ConfigureAwait(false);
 
             _AddFileResourcesToSite(_site, Path.Combine(Environment.CurrentDirectory, "Resources"));
 
@@ -72,6 +52,30 @@ namespace Nerven.Self
             }
 
             await _site.WriteToDirectory(outputBaseDirectoryPath).ConfigureAwait(false);
+        }
+
+        private async Task _GenerateProjectLogosAsync(ProjectInfo project, IHtmlSite site)
+        {
+            var _logo = _LogoBuilder.GetLogo(project);
+            var _svgDocument = await _logo.GetSvgDocumentAsync().ConfigureAwait(false);
+            var _svgResource = HtmlStreamResourceProperties.CreateStreamResource(null, () =>
+            {
+                var _stream = new MemoryStream();
+                _svgDocument.Save(_stream);
+                _stream.Position = 0;
+                return _stream;
+            });
+            _svgResource.Name = new[] { "external-assets", "logo", "svg", _logo.Key + ".svg" };
+            site.Resources.Add(_svgResource);
+
+            foreach (var _pixelSize in new[] { 16, 32, 48, 256, 512, 4096 })
+            {
+                var _sizeString = _pixelSize.ToString(CultureInfo.InvariantCulture);
+
+                var _pngResource = HtmlStreamResourceProperties.CreateStreamResource("image/png", await _logo.GetPngDataAsync(_pixelSize).ConfigureAwait(false));
+                _pngResource.Name = new[] { "external-assets", "logo", _sizeString + "x" + _sizeString + "_png", _logo.Key + ".png" };
+                site.Resources.Add(_pngResource);
+            }
         }
 
         private static void _AddFileResourcesToSite(IHtmlSite site, string resourcesDirectoryPath)
