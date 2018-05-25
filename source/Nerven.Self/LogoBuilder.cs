@@ -151,6 +151,7 @@ namespace Nerven.Self
             private readonly XDocument _SvgWithTextDocument;
             private readonly AsyncLock _Lock;
             private readonly Dictionary<int, byte[]> _PngBitmaps;
+            private XDocument _PlainSvg;
             private IHtmlChildNode _SvgNode;
 
             public Logo(LogoBuilder logoBuilder, ProjectInfo project, string key, XDocument svgWithTextDocument)
@@ -165,9 +166,15 @@ namespace Nerven.Self
 
             public string Key { get; }
 
-            public Task<XDocument> GetSvgDocumentAsync()
+            public async Task<XDocument> GetSvgDocumentAsync()
             {
-                return Task.FromResult(_SvgWithTextDocument);
+                using (await _Lock.LockAsync().ConfigureAwait(false))
+                {
+                    if (_PlainSvg == null)
+                        _PlainSvg = await _GeneratePlainSvg().ConfigureAwait(false);
+                }
+
+                return _PlainSvg;
             }
 
             public async Task<IHtmlChildNode> GetSvgNodeAsync()
@@ -175,7 +182,7 @@ namespace Nerven.Self
                 using (await _Lock.LockAsync().ConfigureAwait(false))
                 {
                     if (_SvgNode == null)
-                        _SvgNode = await _GenerateSvgNode(_Project, _SvgWithTextDocument).ConfigureAwait(false);
+                        _SvgNode = await _GenerateSvgNode().ConfigureAwait(false);
                 }
 
                 return _SvgNode.CloneChildNode();
@@ -187,7 +194,7 @@ namespace Nerven.Self
                 {
                     if (!_PngBitmaps.TryGetValue(size, out var _data))
                     {
-                        _data = await _GeneratePngBitmap(_SvgWithTextDocument, size).ConfigureAwait(false);
+                        _data = await _GeneratePngBitmap(size).ConfigureAwait(false);
                         _PngBitmaps[size] = _data;
                     }
 
@@ -201,9 +208,9 @@ namespace Nerven.Self
                 return $"image/png;base64,{Convert.ToBase64String(_bitmapData)}";
             }
 
-            private async Task<IHtmlChildNode> _GenerateSvgNode(ProjectInfo project, XDocument svgWithTextDocument)
+            private async Task<XDocument> _GeneratePlainSvg()
             {
-                var _key = _GetKey(project);
+                var _key = _GetKey(_Project);
 
                 XDocument _svgDocumentWithPath;
                 XDocument _svgDocument;
@@ -213,7 +220,7 @@ namespace Nerven.Self
                 {
                     var _svgWithTextFilePath = Path.Combine(_tempDirectoryPath, $"{Guid.NewGuid()}.svg");
                     _CreateFileDirectoryIfMissing(_svgWithTextFilePath);
-                    svgWithTextDocument.Save(_svgWithTextFilePath);
+                    _SvgWithTextDocument.Save(_svgWithTextFilePath);
 
                     var _svgFilePath = Path.Combine(_tempDirectoryPath, $"{Guid.NewGuid()}.svg");
                     await _RunInkscape(_svgWithTextFilePath, $@"--export-text-to-path --export-plain-svg ""{_svgFilePath}""").ConfigureAwait(false);
@@ -259,18 +266,24 @@ namespace Nerven.Self
                     }
                 }
 
+                return _svgDocument;
+            }
+
+            private async Task<IHtmlChildNode> _GenerateSvgNode()
+            {
+                var _svgDocument = _PlainSvg ?? await _GeneratePlainSvg().ConfigureAwait(false);
                 var _logoHtml = spanTag(classAttr("logo"), _svgDocument.Root.ToHtmlNode());
                 return _logoHtml;
             }
-
-            private async Task<byte[]> _GeneratePngBitmap(XDocument svgWithTextDocument, int pixelSize)
+            
+            private async Task<byte[]> _GeneratePngBitmap(int pixelSize)
             {
                 var _tempDirectoryPath = Path.Combine(Path.GetTempPath(), $"{typeof(LogoBuilder).FullName}_{Guid.NewGuid()}");
                 try
                 {
                     var _svgWithTextFilePath = Path.Combine(_tempDirectoryPath, $"{Guid.NewGuid()}.svg");
                     _CreateFileDirectoryIfMissing(_svgWithTextFilePath);
-                    svgWithTextDocument.Save(_svgWithTextFilePath);
+                    _SvgWithTextDocument.Save(_svgWithTextFilePath);
 
                     var _pngFilePath = Path.Combine(_tempDirectoryPath, $"{Guid.NewGuid()}.png");
                     await _RunInkscape(_svgWithTextFilePath, $@"--export-width {pixelSize} --export-height {pixelSize} --export-png ""{_pngFilePath}""").ConfigureAwait(false);
