@@ -308,6 +308,7 @@ span.no-word-break {
 
             &:hover span.logo {
                 width: ((2 * @nerven-length-unit) + @nerven-length-unit-detail);
+                height: ((2 * @nerven-length-unit) + @nerven-length-unit-detail);
                 margin: -(.5 * @nerven-length-unit-detail) 0 0 -((3 * @nerven-length-unit) + (.5 * @nerven-length-unit-detail));
             }
         }
@@ -319,9 +320,10 @@ span.no-word-break {
 
     span span.logo {
         width: (2 * @nerven-length-unit);
+        height: (2 * @nerven-length-unit);
         position: absolute;
         margin: 0 0 0 -(3 * @nerven-length-unit);
-        transition: margin @nerven-time-anim ease-out, width @nerven-time-anim ease-out;
+        transition: margin @nerven-time-anim ease-out, width @nerven-time-anim ease-out, height @nerven-time-anim ease-out;
     }
 }
 
