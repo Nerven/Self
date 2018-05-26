@@ -136,7 +136,7 @@ namespace Nerven.Self
             return await _CreateHtmlDocumentAsync(
                 new string[] { },
                 null,
-                await _LogoImageAsync(null).ConfigureAwait(false),
+                _LogoBuilder.GetLogo(null),
                 divTag(
                     divTag(
                         classAttr("projects-index"),
@@ -150,7 +150,7 @@ namespace Nerven.Self
             return await _CreateHtmlDocumentAsync(
                 new[] { project.GitHub.Name.ToLower() },
                 project.GitHub.Name,
-                await _LogoImageAsync(project).ConfigureAwait(false),
+                _LogoBuilder.GetLogo(project),
                 articleTag(
                     classAttr("project-article"),
                     sectionTag(
@@ -267,18 +267,20 @@ namespace Nerven.Self
             return _readmeElement.ToHtmlNode();
         }
 
-        private async Task<IHtmlDocumentResource> _CreateHtmlDocumentAsync(IReadOnlyList<string> path, string pageTitle, IHtmlNode logo, IHtmlElement contents)
+        private async Task<IHtmlDocumentResource> _CreateHtmlDocumentAsync(IReadOnlyList<string> path, string pageTitle, LogoBuilder.Logo logo, IHtmlElement contents)
         {
+            var _logoNode = await logo.GetSvgNodeAsync().ConfigureAwait(false);
+
             var _header = pageTitle == null
                 ? h1Tag(
                     aTag(
                         hrefAttr(_DocumentUri()),
-                        logo,
+                        _logoNode,
                         Text("Nerven")))
                 : h1Tag(
                     aTag(
                         hrefAttr(_DocumentUri(path)),
-                        logo,
+                        _logoNode,
                         smallTag(
                             Text("Nerven")),
                         brTag(),
@@ -303,15 +305,9 @@ namespace Nerven.Self
                             titleTag(Text(pageTitle == null ? "Nerven" : $"Nerven {pageTitle}")),
                             styleTag(
                                 typeAttr("text/css"),
-                                _GetStyleSheet())),
-                            ////linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "16x16"), hrefAttr(_ResourceUri("/external-assets/logo/16x16_png/nerven.png"))),
-                            ////linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "48x48"), hrefAttr(_ResourceUri("/external-assets/logo/48x48_png/nerven.png"))),
-                            ////linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "256x256"), hrefAttr(_ResourceUri("/external-assets/logo/256x256_png/nerven.png"))),
-                            ////linkTag(relAttr("icon"), typeAttr("image/svg+xml"), Attribute("sizes", "any"), hrefAttr(_ResourceUri("/external-assets/logo/svg_traced/nerven.svg")))),
-                            ////linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "16x16"), hrefAttr(_LogoBuilder.GetLogoUri(null, LogoFormat.Png16x16))),
-                            ////linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "48x48"), hrefAttr(_LogoBuilder.GetLogoUri(null, LogoFormat.Png48x48))),
-                            ////linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "256x256"), hrefAttr(_LogoBuilder.GetLogoUri(null, LogoFormat.Png256x256))),
-                            ////linkTag(relAttr("icon"), typeAttr("image/svg+xml"), Attribute("sizes", "any"), hrefAttr(_LogoBuilder.GetLogoUri(null, LogoFormat.Svg)))),
+                                _GetStyleSheet()),
+                            linkTag(relAttr("icon"), typeAttr("image/png"), Attribute("sizes", "16x16"), hrefAttr(await logo.GetPngDataUriAsync(16).ConfigureAwait(false))),
+                            linkTag(relAttr("icon"), typeAttr("image/svg+xml"), Attribute("sizes", "any"), hrefAttr(await logo.GetSvgDocumentDataUriAsync().ConfigureAwait(false)))),
                         bodyTag(
                             divTag(
                                 _breadcrumbs == null

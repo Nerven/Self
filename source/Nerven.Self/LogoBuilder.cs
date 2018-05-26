@@ -177,6 +177,17 @@ namespace Nerven.Self
                 return _PlainSvg;
             }
 
+            public async Task<string> GetSvgDocumentDataUriAsync()
+            {
+                var _svgDocument = await GetSvgDocumentAsync().ConfigureAwait(false);
+                using (var _stream = new MemoryStream())
+                {
+                    _svgDocument.Save(_stream);
+                    _stream.Position = 0;
+                    return _GetDataUri("image/svg+xml", _stream.ToArray());
+                }
+            }
+
             public async Task<IHtmlChildNode> GetSvgNodeAsync()
             {
                 using (await _Lock.LockAsync().ConfigureAwait(false))
@@ -205,7 +216,12 @@ namespace Nerven.Self
             public async Task<string> GetPngDataUriAsync(int size)
             {
                 var _bitmapData = await GetPngDataAsync(size).ConfigureAwait(false);
-                return $"image/png;base64,{Convert.ToBase64String(_bitmapData)}";
+                return _GetDataUri("image/png", _bitmapData);
+            }
+
+            private static string _GetDataUri(string mimeType, byte[] data)
+            {
+                return $"data:{mimeType};base64,{Convert.ToBase64String(data)}";
             }
 
             private async Task<XDocument> _GeneratePlainSvg()
