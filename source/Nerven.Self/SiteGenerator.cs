@@ -39,20 +39,22 @@ namespace Nerven.Self
         {
             var _site = Site();
             
-            await Task.WhenAll(
+            var _logoGeneratorTask = Task.WhenAll(
                 new[] { default(ProjectInfo) }.Concat(data.Projects)
-                    .Select(_project => _GenerateProjectLogosAsync(_project, _site))).ConfigureAwait(false);
+                    .Select(_project => _GenerateProjectLogosAsync(_project, _site)));
 
             _AddFileResourcesToSite(_site, Path.Combine(Environment.CurrentDirectory, "Resources"));
 
-            _site.Resources.Add(await _CreateIndexHtmlDocumentAsync(data.Projects).ConfigureAwait(false));
-
-            foreach (var _project in data.Projects)
+            var _projectPagesTask = Task.WhenAll(data.Projects.Select(async _project =>
             {
                 var _projectDocumentResource = await _CreateProjectHtmlDocumentAsync(_project).ConfigureAwait(false);
                 _site.Resources.Add(_projectDocumentResource);
-            }
+            }));
 
+            _site.Resources.Add(await _CreateIndexHtmlDocumentAsync(data.Projects).ConfigureAwait(false));
+
+            await _logoGeneratorTask.ConfigureAwait(false);
+            await _projectPagesTask.ConfigureAwait(false);
             await _site.WriteToDirectory(outputBaseDirectoryPath).ConfigureAwait(false);
         }
 
