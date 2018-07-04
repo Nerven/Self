@@ -120,10 +120,13 @@ namespace Nerven.Self
         private async Task<IHtmlDocumentResource> _CreateIndexHtmlDocumentAsync(IReadOnlyList<ProjectInfo> projects)
         {
             var _projectsNode = divTag();
-            foreach (var _project in projects)
+            foreach (var _project in projects
+                .OrderByDescending(_p => _p.Extra?.Recommended != false)
+                .ThenBy(_p => _p.GitHub.Name))
             {
                 _projectsNode.Children.Add(
                     sectionTag(
+                        classAttr(_project.Extra?.Recommended == false ? "obsolete-project" : null),
                         aTag(
                             hrefAttr(_DocumentUri(_project)),
                             headerTag(
@@ -172,6 +175,18 @@ namespace Nerven.Self
                                                     Text(_nugetPackage)),
                                                 Text(")")))).ToArray()
                                     : null,
+                                project.Extra?.DotNetPlatforms?.Count > 0
+                                    ? new[] { dtTag(Text(".NET platform")) }
+                                        .Concat(project.Extra.DotNetPlatforms
+                                            .Select(_dotNetPlatform => ddTag(Text(_dotNetPlatform)))).ToArray()
+                                    : null,
+                                project.Extra?.DevelopmentStatus.HasValue == true
+                                    ? new[]
+                                    {
+                                        dtTag(Text("Development")),
+                                        ddTag(Text(project.Extra.DevelopmentStatus.ToString())),
+                                    }
+                                    : null,
                                 project.GitHub.LicenseName != null
                                     ? new[]
                                         {
@@ -191,11 +206,6 @@ namespace Nerven.Self
                                         ddTag(aTag(hrefAttr($"{project.GitHub.HtmlUrl}/archive/master.tar.gz"), Text(".tar.gz"))),
                                         ddTag(aTag(hrefAttr($"{project.GitHub.HtmlUrl}/archive/master.zip"), Text(".zip"))),
                                     },
-                                project.Extra?.DotNetPlatforms?.Count > 0
-                                    ? new[] { dtTag(Text(".NET platform")) }
-                                        .Concat(project.Extra.DotNetPlatforms
-                                            .Select(_dotNetPlatform => ddTag(Text(_dotNetPlatform)))).ToArray()
-                                    : null,
                             }.Where(_childNodes => _childNodes != null).SelectMany(_childNodes => _childNodes).ToArray())),
                     project.GitHub.ReadmeHtml == null
                         ? null

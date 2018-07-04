@@ -3,51 +3,72 @@
         {
             "Name": "Assertion",
             "DotNetPlatforms": [
-                ".NET Standard 1.1"
+                ".NET Standard 1.1",
             ],
             "NugetPackages": [
-                "Nerven.Assertion"
-            ]
+                "Nerven.Assertion",
+            ],
+			"DevelopmentStatus": "Stopped",
+			"Recommended": false,
         },
         {
             "Name": "Bygge",
             "NugetPackages": [
-                "Nerven.Bygge"
-            ]
+                "Nerven.Bygge",
+            ],
+			"DevelopmentStatus": "Neglected",
+			"Recommended": false,
         },
         {
             "Name": "CommandLineParser",
             "DotNetPlatforms": [
-                ".NET Standard 1.0"
+                ".NET Standard 1.0",
             ],
             "NugetPackages": [
-                "Nerven.CommandLineParser.Core"
-            ]
+                "Nerven.CommandLineParser",
+            ],
+			"DevelopmentStatus": "Maintenance",
+			"Recommended": true,
         },
         {
             "Name": "Htmler",
             "DotNetPlatforms": [
-                ".NET Standard 1.3"
+                ".NET Standard 1.3",
             ],
-            "LogoText": "Htm."
+            "LogoText": "Htm.",
+			"DevelopmentStatus": "Neglected",
+			"Recommended": false,
+        },
+        {
+            "Name": "Relient",
+            "DotNetPlatforms": [
+                ".NET Standard 1.4",
+            ],
+			"DevelopmentStatus": "Sporadic",
+			"StabilityStatus": "Working",
+			"Recommended": true,
         },
         {
             "Name": "StringParser",
             "DotNetPlatforms": [
-                ".NET Standard 1.1"
+                ".NET Standard 1.1",
             ],
             "NugetPackages": [
-                "Nerven.StringParser.Core"
-            ]
+                "Nerven.StringParser.Core",
+            ],
+			"DevelopmentStatus": "Maintenance",
+			"Recommended": true,
         },
         {
             "Name": "Taskuler",
             "DotNetPlatforms": [
-                ".NET Standard 1.1"
+                ".NET Standard 1.1",
             ],
             "NugetPackages": [
-                "Nerven.Taskuler.Core"
-            ]
+                "Nerven.Taskuler.Core",
+            ],
+			"DevelopmentStatus": "Sporadic",
+			"Recommended": true,
         }
     ]
 }
