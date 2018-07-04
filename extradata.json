@@ -45,7 +45,6 @@
                 ".NET Standard 1.4",
             ],
 			"DevelopmentStatus": "Sporadic",
-			"StabilityStatus": "Working",
 			"Recommended": true,
         },
         {
