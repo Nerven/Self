@@ -56,6 +56,8 @@ namespace Nerven.Self
             await _logoGeneratorTask.ConfigureAwait(false);
             await _projectPagesTask.ConfigureAwait(false);
             await _site.WriteToDirectory(outputBaseDirectoryPath).ConfigureAwait(false);
+
+            await _AddExtraFiles(outputBaseDirectoryPath).ConfigureAwait(false);
         }
 
         private async Task _GenerateProjectLogosAsync(ProjectInfo project, IHtmlSite site)
@@ -351,6 +353,16 @@ namespace Nerven.Self
                                             aTag(
                                                 hrefAttr(_NervenSelfUri),
                                                 Text("Nerven.Self"))))))))));
+        }
+
+        private async Task _AddExtraFiles(string outputBaseDirectoryPath)
+        {
+            using (var _fileStream = new FileStream(Path.Combine(outputBaseDirectoryPath, "_headers"), FileMode.Create, FileAccess.Write))
+            using (var _writer = new StreamWriter(_fileStream, new UTF8Encoding(false)))
+            {
+                await _writer.WriteLineAsync("/*").ConfigureAwait(false);
+                await _writer.WriteLineAsync("  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload").ConfigureAwait(false);
+            }
         }
 
         private IHtmlRaw _GetStyleSheet()
