@@ -48,6 +48,10 @@
 			"Recommended": true,
         },
         {
+            "Name": "Self",
+			"Recommended": false,
+        },
+        {
             "Name": "StringParser",
             "DotNetPlatforms": [
                 ".NET Standard 1.1",
